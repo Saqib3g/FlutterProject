@@ -8,7 +8,7 @@ class Addinfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Firestore and SQLite Example',
+      title: 'Firestore Example',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -31,12 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _submitForm() async {
     final name = _nameController.text;
-    // final age = int.tryParse(_ageController.text) ?? 0;
-
-    // Store in SQLite
-    //await _databaseHelper.insert({'name': name, 'age': age});
-    //collection -> studetns
-    final studentCollection = FirebaseFirestore.instance.collection("students");//"students" is a collection name here.
+    final studentCollection = FirebaseFirestore.instance.collection("students");
     //create save  payload
     final studentsData = {
       "name": _nameController.text,
@@ -48,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
     };
     studentCollection
         .add(studentsData)
-        .then((value) => print("student data added"))
+        .then((value) => print("student added"))
         .catchError((error) => print("error $error"));
 
     _nameController.clear();
@@ -58,11 +53,66 @@ class _MyHomePageState extends State<MyHomePage> {
     _categoryController.clear();
   }
 
+  deleteTheData() {
+    //  delete record
+    FirebaseFirestore.instance
+        .collection('students')
+        .doc("PPAlVALEekjO27h8Yube")
+        .delete()
+      ..then((value) => print("deleted the data"))
+          .catchError((error) => print("Failed to delete the data: $error"));
+  }
+
+  //update record
+
+  updateTheData() {
+    FirebaseFirestore.instance
+        .collection('students')
+        .doc("3vm7bCwvro69WYvjMRhU")
+        .update({"name": "sukesh1"})
+      ..then((value) => print("User Updated"))
+          .catchError((error) => print("Failed to update user: $error"));
+  }
+
+//Get the total data from collection of students
+  getTheData() {
+    FirebaseFirestore.instance
+        .collection('students')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        print(doc);
+        print(doc["name"]);
+        print(doc["email"]);
+        print(doc["phone"]);
+        print(doc["address"]);
+      });
+    });
+  }
+
+  //Get the data based on condtion
+  //.where("name",isEqualTo: "sukesh")
+
+  // FirebaseFirestore.instance
+  //     .collection('students')
+  //     .where("name", isEqualTo: "sukesh")
+  //     .get()
+  //     .then((QuerySnapshot querySnapshot) {
+  //   querySnapshot.docs.forEach((doc) {
+  //     print(doc);
+  //     print(doc["name"]);
+  //     print(doc["email"]);
+  //     print(doc["phone"]);
+  //     print(doc["address"]);
+  //   });
+  // });
+  //}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Firestore and SQLite Example'),
+        title: Text('Firestore Example'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -97,12 +147,25 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: _submitForm,
               child: Text('Submit'),
             ),
+            ElevatedButton(
+              onPressed: getTheData,
+              child: Text('Get the Data'),
+            ),
+            ElevatedButton(
+              onPressed: deleteTheData,
+              child: Text('Delete'),
+            ),
+            ElevatedButton(
+              onPressed: updateTheData,
+              child: Text('Update'),
+            ),
           ],
         ),
       ),
     );
   }
 }
+
 //import the file in main.dart , add route and Run.
 //open -a simulator
 //flutter run 
