@@ -1,18 +1,27 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
 
-uploadFileToFirebse(Uint8List filePath) async {
+uploadFileToFirebse(String filePath) async {
 // Create a storage reference from our app
+  print("file path $filePath");
   final storageRef = FirebaseStorage.instance.ref();
-  // UploadTask uploadTaks = storageRef.putFile(File(filePath));
 
+  UploadTask uploadTask = storageRef.putFile(File(filePath));
+  final metadata = SettableMetadata(
+    contentType: 'image/jpeg',
+    // contentType: 'image/png',
+    customMetadata: {'picked-file-path': filePath},
+  );
   // print(uploadTaks.storage.ref());
   try {
-    await storageRef.putData(filePath);
-  } catch (e) {
+    uploadTask =
+        storageRef.putData(await File(filePath).readAsBytes(), metadata);
+    //TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
+    final imgUrl = await (await uploadTask).ref.getDownloadURL();
+    print("image url $imgUrl");
+  } on FirebaseException catch (e) {
     // ...
-    print(e);
+    print(e.message);
   }
 }
